@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ส่งข้อความร่วมสนุก - Prompt Font</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        body { 
+            font-family: 'Prompt', sans-serif; /* เปลี่ยนฟอนต์หลัก */
+            background-color: #f0f2f5; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh; 
+            margin: 0; 
+        }
+        
+        .card { background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 80%; max-width: 400px; text-align: center; }
+        
+        h2 { font-weight: 600; color: #333; }
+
+        .input-group { position: relative; width: 100%; margin: 15px 0; }
+        
+        /* ปรับ Input ให้ใช้ฟอนต์ Prompt */
+        input { 
+            font-family: 'Prompt', sans-serif;
+            width: 100%; 
+            padding: 12px; 
+            border: 1px solid #ddd; 
+            border-radius: 8px; 
+            box-sizing: border-box; 
+            font-size: 16px; 
+            outline: none;
+        }
+
+        #charCount { text-align: right; font-size: 13px; color: #888; margin-top: 5px; }
+        
+        /* ปรับปุ่มให้ใช้ฟอนต์ Prompt */
+        button { 
+            font-family: 'Prompt', sans-serif;
+            width: 100%; 
+            padding: 12px; 
+            background-color: #007bff; 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            font-size: 16px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            transition: 0.2s; 
+        }
+        button:active { background-color: #0056b3; transform: scale(0.98); }
+        
+        /* Modal Styles */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { 
+            font-family: 'Prompt', sans-serif;
+            background: white; 
+            padding: 30px; 
+            border-radius: 20px; 
+            text-align: center; 
+            width: 85%; 
+            max-width: 320px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2); 
+            animation: popUpAnim 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        }
+        .modal-content h3 { font-weight: 600; margin-top: 0; }
+        .modal-content .icon { font-size: 60px; margin-bottom: 15px; }
+        
+        .btn-close { 
+            font-family: 'Prompt', sans-serif;
+            color: white; 
+            border: none; 
+            padding: 12px 40px; 
+            border-radius: 10px; 
+            font-weight: 600; 
+            font-size: 16px; 
+            cursor: pointer; 
+        }
+        
+        .btn-success { background: #28a745; }
+        .btn-warning { background: #ff4d4d; }
+
+        @keyframes popUpAnim { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>ส่งข้อความขึ้นจอ 🚀</h2>
+    <div class="input-group">
+        <input type="text" id="msgInput" placeholder="พิมพ์ข้อความที่นี่..." maxlength="50" oninput="updateCount()">
+        <div id="charCount">0 / 50</div>
+    </div>
+    <button onclick="sendMessage()">ส่งข้อความเลย!</button>
+</div>
+
+<div id="successModal" class="modal">
+    <div class="modal-content">
+        <div class="icon">✅</div>
+        <h3>ส่งสำเร็จแล้ว!</h3>
+        <p>เย้! ข้อความของคุณถูกส่งไป<br>ลอยเล่นบนหน้าจอแล้วนะ</p>
+        <button class="btn-close btn-success" onclick="closeModal('successModal')">ตกลง</button>
+    </div>
+</div>
+
+<div id="warningModal" class="modal">
+    <div class="modal-content" style="border-top: 8px solid #ff4d4d;">
+        <div class="icon">⚠️</div>
+        <h3 style="color: #ff4d4d;">พบคำไม่สุภาพ</h3>
+        <p>ขอความร่วมมือใช้คำที่สุภาพ<br>เพื่อให้หน้าจอของเราน่ารักสำหรับทุกคนนะ 😊</p>
+        <button class="btn-close btn-warning" onclick="closeModal('warningModal')">เข้าใจแล้ว</button>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyABMGE0Mt3KaLK6P5mv33hP7G_6TVPJAJk",
+        authDomain: "experimental-film-9bd72.firebaseapp.com",
+        databaseURL: "https://experimental-film-9bd72-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "experimental-film-9bd72",
+        storageBucket: "experimental-film-9bd72.firebasestorage.app",
+        messagingSenderId: "971518484827",
+        appId: "1:971518484827:web:54fbdb1d3354a2e1fbba7e"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    let baseBadWords = [
+        "ควย", "เย็ด", "มึง", "กู", "สัส", "เหี้ย", "ดอกทอง", "ชิบหาย", "อีดอก", "อีเวร", "หี", "แตด", "ระยำ", "จัญไร", "สถุล", "ไพร่", "หน้าหี",
+        "กาก", "กระจอก", "ขยะ", "ตลาดล่าง", "เบียว", "บ้ง", "ต่ำตม", "สันดาน", "เสือก", "เงี่ยน", "แตกหนุ่ม", "แตกสาว", "อีผี",
+        "fuck", "shit", "bitch", "asshole", "stfu", "wtf", "dick", "pussy", "slut", "whore", "bastard", "damn",
+        "ควัย", "ค_ว_ย", "เ_ย็_ด", "เยด", "ฟักยู", "สลัดผัก", "ห้าเอ๊ย", "แสด", "แม่ม", "แม่ง"
+    ];
+
+    let allBadWords = [...baseBadWords];
+
+    onValue(ref(db, 'badWordsCustom'), (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+            const customWords = Object.values(data);
+            allBadWords = [...new Set([...baseBadWords, ...customWords])];
+        }
+    });
+
+    function checkBadWords(text) {
+        const cleanText = text.replace(/\s+/g, '').replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"");
+        for (let word of allBadWords) {
+            if (cleanText.toLowerCase().includes(word.toLowerCase())) return true;
+        }
+        const badPatterns = [/[กค]([ููููู]|ุู|ูุ)/, /[สส][ัสส]/, /เ[ีี]้ย/, /f+u+c+k+/i, /s+h+i+t+/i];
+        return badPatterns.some(pattern => pattern.test(cleanText));
+    }
+
+    window.updateCount = function() {
+        const input = document.getElementById('msgInput');
+        const countDisplay = document.getElementById('charCount');
+        const length = input.value.length;
+        countDisplay.innerText = `${length} / 50`;
+        countDisplay.style.color = length >= 45 ? "#ff4d4d" : "#888";
+    };
+
+    window.sendMessage = function() {
+        const input = document.getElementById('msgInput');
+        const text = input.value.trim();
+        if (text !== "") {
+            if (checkBadWords(text)) {
+                showModal('warningModal'); 
+                input.value = "";
+                window.updateCount();
+                return;
+            }
+            push(ref(db, 'messages'), { text: text, timestamp: Date.now() })
+            .then(() => {
+                input.value = ""; 
+                window.updateCount();
+                showModal('successModal');      
+            })
+            .catch((error) => console.error("Error:", error));
+        }
+    };
+
+    window.showModal = function(id) { document.getElementById(id).style.display = 'flex'; };
+    window.closeModal = function(id) { document.getElementById(id).style.display = 'none'; };
+</script>
+</body>
+</html>
