@@ -1,244 +1,243 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <title>หน้าจอแสดงผลข้อความ - Long Len Experimental</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
-    
-    <style>
-        body { 
-            background: #000; 
-            margin: 0; 
-            overflow: hidden; 
-            height: 100vh; 
-            font-family: 'Prompt', sans-serif; /* เปลี่ยนฟอนต์ที่นี่ */
-        }
-        #display-area { position: relative; width: 100vw; height: 100vh; }
-        
-        .popup {
-            position: absolute;
-            background: white; 
-            color: #333;
-            padding: 15px 25px;
-            border-radius: 40px;
-            font-weight: 600; /* ปรับความหนาฟอนต์ */
-            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
-            z-index: 10;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            pointer-events: none;
-            transition: opacity 2s;
-            will-change: transform;
+    <meta charset="UTF-8">
+    <title>หน้าจอแสดงผลข้อความ - Long Len Experimental</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        body { 
+            background: #000; 
+            margin: 0; 
+            overflow: hidden; 
+            height: 100vh; 
+            font-family: 'Prompt', sans-serif; /* เปลี่ยนฟอนต์ที่นี่ */
+        }
+        #display-area { position: relative; width: 100vw; height: 100vh; }
+        
+        .popup {
+            position: absolute;
+            background: white; 
+            color: #333;
+            padding: 15px 25px;
+            border-radius: 40px;
+            font-weight: 600; /* ปรับความหนาฟอนต์ */
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            transition: opacity 2s;
+            will-change: transform;
 
-            /* รองรับ 2 บรรทัด */
-            white-space: normal;
-            word-wrap: break-word;
-            max-width: 260px;
-            text-align: center;
-            line-height: 1.3;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-        }
+            /* รองรับ 2 บรรทัด */
+            white-space: normal;
+            word-wrap: break-word;
+            max-width: 260px;
+            text-align: center;
+            line-height: 1.3;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
 
-        .event-title {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            z-index: 0;
-            color: rgba(255, 255, 255, 0.3);
-            pointer-events: none;
-        }
+        .event-title {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 0;
+            color: rgba(255, 255, 255, 0.3);
+            pointer-events: none;
+        }
 
-        .event-title h1 { 
-            font-size: 80px; 
-            margin: 0; 
-            text-transform: uppercase; 
-            letter-spacing: 5px; 
-            font-weight: 600;
-        }
-        .event-title p { 
-            font-size: 30px; 
-            margin: 10px 0 0 0; 
-            opacity: 0.8; 
-            font-weight: 300;
-        }
+        .event-title h1 { 
+            font-size: 80px; 
+            margin: 0; 
+            text-transform: uppercase; 
+            letter-spacing: 5px; 
+            font-weight: 600;
+        }
+        .event-title p { 
+            font-size: 30px; 
+            margin: 10px 0 0 0; 
+            opacity: 0.8; 
+            font-weight: 300;
+        }
 
-        #clearBtn {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 100;
-            padding: 10px 20px;
-            background: rgba(255, 255, 255, 0.1);
-            color: rgba(255, 255, 255, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            cursor: pointer;
-            transition: 0.3s;
-            pointer-events: auto;
-            font-family: 'Prompt', sans-serif;
-        }
-        #clearBtn:hover { background: rgba(255, 0, 0, 0.8); color: white; border-color: transparent; }
-    </style>
+        #clearBtn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+            pointer-events: auto;
+            font-family: 'Prompt', sans-serif;
+        }
+        #clearBtn:hover { background: rgba(255, 0, 0, 0.8); color: white; border-color: transparent; }
+    </style>
 </head>
 <body>
 
 <div id="display-area">
-    <div class="event-title">
-        <h1>Long Len Experimental</h1>
-        <p>สแกน QR Code เพื่อส่งข้อความ!</p>
-    </div>
-    <button id="clearBtn" onclick="clearAllMessages()">Clear Screen</button>
+    <div class="event-title">
+        <h1>Long Len Experimental</h1>
+        <p>สแกน QR Code เพื่อส่งข้อความ!</p>
+    </div>
+    <button id="clearBtn" onclick="clearAllMessages()">Clear Screen</button>
 </div>
 
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, onChildAdded, onValue, onChildRemoved } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, onChildAdded, onValue, onChildRemoved } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyABMGE0Mt3KaLK6P5mv33hP7G_6TVPJAJk",
-        authDomain: "experimental-film-9bd72.firebaseapp.com",
-        databaseURL: "https://experimental-film-9bd72-default-rtdb.asia-southeast1.firebasedatabase.app",
-        projectId: "experimental-film-9bd72",
-        storageBucket: "experimental-film-9bd72.firebasestorage.app",
-        messagingSenderId: "971518484827",
-        appId: "1:971518484827:web:54fbdb1d3354a2e1fbba7e"
-    };
+    const firebaseConfig = {
+        apiKey: "AIzaSyABMGE0Mt3KaLK6P5mv33hP7G_6TVPJAJk",
+        authDomain: "experimental-film-9bd72.firebaseapp.com",
+        databaseURL: "https://experimental-film-9bd72-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "experimental-film-9bd72",
+        storageBucket: "experimental-film-9bd72.firebasestorage.app",
+        messagingSenderId: "971518484827",
+        appId: "1:971518484827:web:54fbdb1d3354a2e1fbba7e"
+    };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    const area = document.getElementById('display-area');
-    const bubbles = [];
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const area = document.getElementById('display-area');
+    const bubbles = [];
 
-    // 1. ฟังข้อความใหม่ + จำกัด 30 ข้อความ
-    onChildAdded(ref(db, 'messages'), (snapshot) => {
-        if (bubbles.length >= 30) {
-            const oldest = bubbles.shift();
-            if (oldest) {
-                oldest.element.style.opacity = "0";
-                setTimeout(() => oldest.element.remove(), 2000);
-            }
-        }
-        createPopup(snapshot.val().text, snapshot.key);
-    });
+    // 1. ฟังข้อความใหม่ + จำกัด 30 ข้อความ
+    onChildAdded(ref(db, 'messages'), (snapshot) => {
+        if (bubbles.length >= 30) {
+            const oldest = bubbles.shift();
+            if (oldest) {
+                oldest.element.style.opacity = "0";
+                setTimeout(() => oldest.element.remove(), 2000);
+            }
+        }
+        createPopup(snapshot.val().text, snapshot.key);
+    });
 
-    // 2. ฟังคำสั่งลบรายข้อความจากหน้า Summary
-    onChildRemoved(ref(db, 'messages'), (snapshot) => {
-        const deletedKey = snapshot.key;
-        const index = bubbles.findIndex(b => b.id === deletedKey);
-        
-        if (index > -1) {
-            const b = bubbles[index];
-            b.element.style.opacity = "0";
-            setTimeout(() => b.element.remove(), 2000);
-            bubbles.splice(index, 1);
-        }
-    });
+    // 2. ฟังคำสั่งลบรายข้อความจากหน้า Summary
+    onChildRemoved(ref(db, 'messages'), (snapshot) => {
+        const deletedKey = snapshot.key;
+        const index = bubbles.findIndex(b => b.id === deletedKey);
+        
+        if (index > -1) {
+            const b = bubbles[index];
+            b.element.style.opacity = "0";
+            setTimeout(() => b.element.remove(), 2000);
+            bubbles.splice(index, 1);
+        }
+    });
 
-    onValue(ref(db, 'commands/clear'), (snapshot) => {
-        if (snapshot.exists()) clearAllMessages();
-    });
+    onValue(ref(db, 'commands/clear'), (snapshot) => {
+        if (snapshot.exists()) clearAllMessages();
+    });
 
-    function createPopup(text, key) {
-        const el = document.createElement('div');
-        el.className = 'popup';
-        el.innerText = text;
+    function createPopup(text, key) {
+        const el = document.createElement('div');
+        el.className = 'popup';
+        el.innerText = text;
 
-        const baseSize = 24;
-        const offset = Math.floor(Math.random() * 21) - 10;
-        el.style.fontSize = (baseSize + offset) + "px";
+        const baseSize = 24;
+        const offset = Math.floor(Math.random() * 21) - 10;
+        el.style.fontSize = (baseSize + offset) + "px";
 
-        const hue = Math.floor(Math.random() * 360);
-        el.style.background = `hsla(${hue}, 70%, 90%, 1)`; 
-        el.style.color = `hsla(${hue}, 80%, 20%, 1)`;      
-        el.style.borderColor = `hsla(${hue}, 70%, 80%, 1)`;
+        const hue = Math.floor(Math.random() * 360);
+        el.style.background = `hsla(${hue}, 70%, 90%, 1)`; 
+        el.style.color = `hsla(${hue}, 80%, 20%, 1)`;      
+        el.style.borderColor = `hsla(${hue}, 70%, 80%, 1)`;
 
-        area.appendChild(el);
+        area.appendChild(el);
 
-        const bubble = {
-            id: key, 
-            element: el,
-            x: Math.random() < 0.5 ? 50 : window.innerWidth - 300,
-            y: Math.random() * (window.innerHeight - 100),
-            vx: (Math.random() - 0.5) * 1.5, 
-            vy: (Math.random() - 0.5) * 1.5,
-            w: el.offsetWidth,
-            h: el.offsetHeight,
-            radius: (Math.max(el.offsetWidth, el.offsetHeight) / 2) + 5
-        };
+        const bubble = {
+            id: key, 
+            element: el,
+            x: Math.random() < 0.5 ? 50 : window.innerWidth - 300,
+            y: Math.random() * (window.innerHeight - 100),
+            vx: (Math.random() - 0.5) * 1.5, 
+            vy: (Math.random() - 0.5) * 1.5,
+            w: el.offsetWidth,
+            h: el.offsetHeight,
+            radius: (Math.max(el.offsetWidth, el.offsetHeight) / 2) + 5
+        };
 
-        bubbles.push(bubble);
+        bubbles.push(bubble);
 
-        // ทำลายตัวเองอัตโนมัติเมื่อครบ 5 นาที
-        setTimeout(() => {
-            const index = bubbles.indexOf(bubble);
-            if (index > -1) {
-                bubbles.splice(index, 1);
-                el.style.opacity = "0";
-                setTimeout(() => el.remove(), 2000);
-            }
-        }, 300000);
-    }
+        // ทำลายตัวเองอัตโนมัติเมื่อครบ 5 นาที
+        setTimeout(() => {
+            const index = bubbles.indexOf(bubble);
+            if (index > -1) {
+                bubbles.splice(index, 1);
+                el.style.opacity = "0";
+                setTimeout(() => el.remove(), 2000);
+            }
+        }, 300000);
+    }
 
-    function update() {
-        for (let i = 0; i < bubbles.length; i++) {
-            const b1 = bubbles[i];
-            b1.vx *= 0.99; 
-            b1.vy *= 0.99;
-            b1.x += b1.vx;
-            b1.y += b1.vy;
+    function update() {
+        for (let i = 0; i < bubbles.length; i++) {
+            const b1 = bubbles[i];
+            b1.vx *= 0.99; 
+            b1.vy *= 0.99;
+            b1.x += b1.vx;
+            b1.y += b1.vy;
 
-            if (b1.x <= 0) { b1.x = 0; b1.vx *= -0.7; }
-            if (b1.x >= window.innerWidth - b1.w) { b1.x = window.innerWidth - b1.w; b1.vx *= -0.7; }
-            if (b1.y <= 0) { b1.y = 0; b1.vy *= -0.7; }
-            if (b1.y >= window.innerHeight - b1.h) { b1.y = window.innerHeight - b1.h; b1.vy *= -0.7; }
+            if (b1.x <= 0) { b1.x = 0; b1.vx *= -0.7; }
+            if (b1.x >= window.innerWidth - b1.w) { b1.x = window.innerWidth - b1.w; b1.vx *= -0.7; }
+            if (b1.y <= 0) { b1.y = 0; b1.vy *= -0.7; }
+            if (b1.y >= window.innerHeight - b1.h) { b1.y = window.innerHeight - b1.h; b1.vy *= -0.7; }
 
-            for (let j = i + 1; j < bubbles.length; j++) {
-                const b2 = bubbles[j];
-                const dx = b2.x - b1.x;
-                const dy = b2.y - b1.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                const minDistance = b1.radius + b2.radius;
+            for (let j = i + 1; j < bubbles.length; j++) {
+                const b2 = bubbles[j];
+                const dx = b2.x - b1.x;
+                const dy = b2.y - b1.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                const minDistance = b1.radius + b2.radius;
 
-                if (distance < minDistance) {
-                    const angle = Math.atan2(dy, dx);
-                    const force = (minDistance - distance) * 0.03; 
-                    const fx = Math.cos(angle) * force;
-                    const fy = Math.sin(angle) * force;
-                    b1.vx -= fx; b1.vy -= fy;
-                    b2.vx += fx; b2.vy += fy;
-                }
-            }
+                if (distance < minDistance) {
+                    const angle = Math.atan2(dy, dx);
+                    const force = (minDistance - distance) * 0.03; 
+                    const fx = Math.cos(angle) * force;
+                    const fy = Math.sin(angle) * force;
+                    b1.vx -= fx; b1.vy -= fy;
+                    b2.vx += fx; b2.vy += fy;
+                }
+            }
 
-            const centerX = window.innerWidth / 2;
-            const centerY = window.innerHeight / 2;
-            const distFromCenter = Math.sqrt(Math.pow((b1.x + b1.w/2) - centerX, 2) + Math.pow((b1.y + b1.h/2) - centerY, 2));
-            if (distFromCenter < 280) { 
-                const angle = Math.atan2((b1.y + b1.h/2) - centerY, (b1.x + b1.w/2) - centerX);
-                b1.vx += Math.cos(angle) * 0.1;
-                b1.vy += Math.sin(angle) * 0.1;
-            }
+            const centerX = window.innerWidth / 2;
+            const centerY = window.innerHeight / 2;
+            const distFromCenter = Math.sqrt(Math.pow((b1.x + b1.w/2) - centerX, 2) + Math.pow((b1.y + b1.h/2) - centerY, 2));
+            if (distFromCenter < 280) { 
+                const angle = Math.atan2((b1.y + b1.h/2) - centerY, (b1.x + b1.w/2) - centerX);
+                b1.vx += Math.cos(angle) * 0.1;
+                b1.vy += Math.sin(angle) * 0.1;
+            }
 
-            b1.element.style.transform = `translate(${b1.x}px, ${b1.y}px)`;
-        }
-        requestAnimationFrame(update);
-    }
+            b1.element.style.transform = `translate(${b1.x}px, ${b1.y}px)`;
+        }
+        requestAnimationFrame(update);
+    }
 
-    update();
+    update();
 
-    window.clearAllMessages = function() {
-        bubbles.length = 0;
-        const popups = document.querySelectorAll('.popup');
-        popups.forEach(p => {
-            p.style.opacity = "0";
-            setTimeout(() => p.remove(), 8500);
-        });
-    };
+    window.clearAllMessages = function() {
+        bubbles.length = 0;
+        const popups = document.querySelectorAll('.popup');
+        popups.forEach(p => {
+            p.style.opacity = "0";
+            setTimeout(() => p.remove(), 2000);
+        });
+    };
 </script>
 </body>
 </html>
-ปรับให้ bubble ใหญ่ขึ้น
