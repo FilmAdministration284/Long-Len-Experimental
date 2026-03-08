@@ -21,11 +21,11 @@
             position: absolute;
             background: white; 
             color: #333;
-            /* ขยาย Padding ให้กว้างขึ้นเพื่อรองรับตัวอักษรยักษ์ */
-            padding: 40px 60px; 
-            border-radius: 100px;
+            /* ปรับขนาด Padding ให้ใหญ่ขึ้น */
+            padding: 25px 40px; 
+            border-radius: 60px;
             font-weight: 600;
-            box-shadow: 0 15px 50px rgba(0,0,0,0.6);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             z-index: 10;
             display: flex;
             align-items: center;
@@ -34,13 +34,13 @@
             transition: opacity 2s;
             will-change: transform;
 
+            /* รองรับการตัดคำและขยายความกว้าง */
             white-space: normal;
             word-wrap: break-word;
-            /* ขยายความกว้างสูงสุดให้กว้างขึ้นมาก */
-            max-width: 800px; 
+            max-width: 450px; 
             text-align: center;
-            line-height: 1.2;
-            border: 5px solid rgba(255, 255, 255, 0.4);
+            line-height: 1.4;
+            border: 3px solid rgba(255, 255, 255, 0.3);
         }
 
         .event-title {
@@ -50,19 +50,19 @@
             transform: translate(-50%, -50%);
             text-align: center;
             z-index: 0;
-            color: rgba(255, 255, 255, 0.15); /* จางลงอีกหน่อยเพื่อให้ข้อความเด่น */
+            color: rgba(255, 255, 255, 0.2);
             pointer-events: none;
         }
 
         .event-title h1 { 
-            font-size: 100px; 
+            font-size: 80px; 
             margin: 0; 
             text-transform: uppercase; 
-            letter-spacing: 8px; 
+            letter-spacing: 5px; 
             font-weight: 600;
         }
         .event-title p { 
-            font-size: 40px; 
+            font-size: 30px; 
             margin: 10px 0 0 0; 
             opacity: 0.8; 
             font-weight: 300;
@@ -73,14 +73,17 @@
             bottom: 20px;
             right: 20px;
             z-index: 100;
-            padding: 12px 24px;
+            padding: 10px 20px;
             background: rgba(255, 255, 255, 0.1);
             color: rgba(255, 255, 255, 0.5);
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 8px;
             cursor: pointer;
+            transition: 0.3s;
+            pointer-events: auto;
             font-family: 'Prompt', sans-serif;
         }
+        #clearBtn:hover { background: rgba(255, 0, 0, 0.8); color: white; border-color: transparent; }
     </style>
 </head>
 <body>
@@ -113,8 +116,7 @@
     const bubbles = [];
 
     onChildAdded(ref(db, 'messages'), (snapshot) => {
-        // ลดจำนวนสูงสุดเหลือ 15 เพื่อไม่ให้จอรกเกินไปเพราะตัวใหญ่มาก
-        if (bubbles.length >= 15) {
+        if (bubbles.length >= 30) {
             const oldest = bubbles.shift();
             if (oldest) {
                 oldest.element.style.opacity = "0";
@@ -127,6 +129,7 @@
     onChildRemoved(ref(db, 'messages'), (snapshot) => {
         const deletedKey = snapshot.key;
         const index = bubbles.findIndex(b => b.id === deletedKey);
+        
         if (index > -1) {
             const b = bubbles[index];
             b.element.style.opacity = "0";
@@ -144,29 +147,30 @@
         el.className = 'popup';
         el.innerText = text;
 
-        // ปรับขนาดฟอนต์ระดับยักษ์ (Base 80px)
-        const baseSize = 80; 
-        const offset = Math.floor(Math.random() * 41) - 20; // สุ่ม +/- 20px
+        // ปรับขนาดฟอนต์ให้ใหญ่ขึ้น (Base 40px)
+        const baseSize = 40; 
+        const offset = Math.floor(Math.random() * 21) - 10;
         el.style.fontSize = (baseSize + offset) + "px";
 
         const hue = Math.floor(Math.random() * 360);
-        el.style.background = `hsla(${hue}, 85%, 90%, 1)`; 
-        el.style.color = `hsla(${hue}, 90%, 15%, 1)`;      
-        el.style.borderColor = `hsla(${hue}, 80%, 75%, 1)`;
+        el.style.background = `hsla(${hue}, 70%, 90%, 1)`; 
+        el.style.color = `hsla(${hue}, 80%, 20%, 1)`;      
+        el.style.borderColor = `hsla(${hue}, 70%, 80%, 1)`;
 
         area.appendChild(el);
 
         const bubble = {
             id: key, 
             element: el,
-            // สุ่มเกิดเน้นกระจายตัว
-            x: Math.random() * (window.innerWidth - 600),
-            y: Math.random() * (window.innerHeight - 300),
-            vx: (Math.random() - 0.5) * 2, 
-            vy: (Math.random() - 0.5) * 2,
+            // สุ่มตำแหน่งเกิดให้ห่างจากขอบมากขึ้นตามขนาดตัวที่ใหญ่ขึ้น
+            x: Math.random() < 0.5 ? 100 : window.innerWidth - 450,
+            y: Math.random() * (window.innerHeight - 200),
+            vx: (Math.random() - 0.5) * 1.5, 
+            vy: (Math.random() - 0.5) * 1.5,
             w: el.offsetWidth,
             h: el.offsetHeight,
-            radius: (Math.max(el.offsetWidth, el.offsetHeight) / 2) + 20
+            // คำนวณรัศมีการชนใหม่ตามขนาด Element จริง
+            radius: (Math.max(el.offsetWidth, el.offsetHeight) / 2) + 10
         };
 
         bubbles.push(bubble);
@@ -184,18 +188,16 @@
     function update() {
         for (let i = 0; i < bubbles.length; i++) {
             const b1 = bubbles[i];
-            b1.vx *= 0.995; 
-            b1.vy *= 0.995;
+            b1.vx *= 0.99; 
+            b1.vy *= 0.99;
             b1.x += b1.vx;
             b1.y += b1.vy;
 
-            // ขอบจอ (Bounce)
-            if (b1.x <= 0) { b1.x = 0; b1.vx *= -0.8; }
-            if (b1.x >= window.innerWidth - b1.w) { b1.x = window.innerWidth - b1.w; b1.vx *= -0.8; }
-            if (b1.y <= 0) { b1.y = 0; b1.vy *= -0.8; }
-            if (b1.y >= window.innerHeight - b1.h) { b1.y = window.innerHeight - b1.h; b1.vy *= -0.8; }
+            if (b1.x <= 0) { b1.x = 0; b1.vx *= -0.7; }
+            if (b1.x >= window.innerWidth - b1.w) { b1.x = window.innerWidth - b1.w; b1.vx *= -0.7; }
+            if (b1.y <= 0) { b1.y = 0; b1.vy *= -0.7; }
+            if (b1.y >= window.innerHeight - b1.h) { b1.y = window.innerHeight - b1.h; b1.vy *= -0.7; }
 
-            // การชนกันระหว่าง Bubble ยักษ์
             for (let j = i + 1; j < bubbles.length; j++) {
                 const b2 = bubbles[j];
                 const dx = (b2.x + b2.w/2) - (b1.x + b1.w/2);
@@ -205,7 +207,7 @@
 
                 if (distance < minDistance) {
                     const angle = Math.atan2(dy, dx);
-                    const force = (minDistance - distance) * 0.07; 
+                    const force = (minDistance - distance) * 0.05; 
                     const fx = Math.cos(angle) * force;
                     const fy = Math.sin(angle) * force;
                     b1.vx -= fx; b1.vy -= fy;
@@ -213,14 +215,14 @@
                 }
             }
 
-            // แรงผลักออกจาก Title ตรงกลาง (ขยายรัศมีผลักเป็น 450)
+            // แรงผลักออกจากตรงกลาง (Event Title)
             const centerX = window.innerWidth / 2;
             const centerY = window.innerHeight / 2;
             const distFromCenter = Math.sqrt(Math.pow((b1.x + b1.w/2) - centerX, 2) + Math.pow((b1.y + b1.h/2) - centerY, 2));
-            if (distFromCenter < 450) { 
+            if (distFromCenter < 350) { 
                 const angle = Math.atan2((b1.y + b1.h/2) - centerY, (b1.x + b1.w/2) - centerX);
-                b1.vx += Math.cos(angle) * 0.2;
-                b1.vy += Math.sin(angle) * 0.2;
+                b1.vx += Math.cos(angle) * 0.15;
+                b1.vy += Math.sin(angle) * 0.15;
             }
 
             b1.element.style.transform = `translate(${b1.x}px, ${b1.y}px)`;
@@ -232,7 +234,8 @@
 
     window.clearAllMessages = function() {
         bubbles.length = 0;
-        document.querySelectorAll('.popup').forEach(p => {
+        const popups = document.querySelectorAll('.popup');
+        popups.forEach(p => {
             p.style.opacity = "0";
             setTimeout(() => p.remove(), 2000);
         });
